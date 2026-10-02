@@ -1,0 +1,54 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test / coverage caches
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# InferDoc runtime evidence
+.inferdoc/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Package/build outputs
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Local caches
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.cache/
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary / backup files
+*.bak
+*.backup
+*.orig
+
+# Local Python environments
+.venv/
+venv/
+env/

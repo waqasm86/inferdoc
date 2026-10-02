@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      INFERDOC_RUN_LIVE_TESTS: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python3.11 -m pip install --upgrade pip
+      - run: python3.11 -m pip install -e ".[dev]"
+      - run: python3.11 -m compileall -q src examples tests
+      - run: python3.11 -m pytest -q
+      - run: python3.11 -m build --no-isolation
+      - run: python3.11 -m twine check dist/*
