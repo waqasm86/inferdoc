@@ -59,6 +59,27 @@ class RequestMeasurement(BaseModel):
         ).total_seconds()
 
 
+class EvidenceCapabilities(BaseModel):
+    """Backend support and values actually observed in this run are separate."""
+
+    supports_latency: bool = True
+    latency_available: bool = False
+    supports_ttft: bool = True
+    ttft_available: bool = False
+    supports_request_throughput: bool = True
+    request_throughput_available: bool = False
+    supports_output_token_throughput: bool = True
+    output_token_throughput_available: bool = False
+    supports_total_token_throughput: bool = True
+    total_token_throughput_available: bool = False
+    supports_token_usage: bool = True
+    token_usage_available: bool = False
+    supports_gpu_utilization: bool = False
+    gpu_utilization_available: bool = False
+    supports_kv_cache_metrics: bool = False
+    kv_cache_metrics_available: bool = False
+
+
 class EvidenceBundle(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -81,9 +102,7 @@ class EvidenceBundle(BaseModel):
 
     requests: list[RequestMeasurement]
 
-    capabilities: dict[str, Any] = Field(
-        default_factory=dict
-    )
+    capabilities: EvidenceCapabilities = Field(default_factory=EvidenceCapabilities)
 
     provenance: dict[str, Any] = Field(
         default_factory=dict
@@ -132,10 +151,13 @@ class EvidenceBundle(BaseModel):
             for request in successful
         ]
 
+        streaming = kwargs.get("workload", {}).get(
+            "stream", kwargs.get("parameters", {}).get("stream", False)
+        )
         ttft = [
             request.ttft_s
             for request in successful
-            if request.ttft_s is not None
+            if streaming and request.ttft_s is not None
         ]
 
         input_values = [
@@ -289,7 +311,22 @@ class EvidenceBundle(BaseModel):
                 elapsed,
         }
 
+        # This describes measured availability, not backend admission policy.
+        kwargs.pop("capabilities", None)
+        capabilities = EvidenceCapabilities(
+            latency_available=aggregate["latency_s"]["mean"] is not None,
+            ttft_available=bool(streaming) and aggregate["ttft_s"]["mean"] is not None,
+            request_throughput_available=aggregate["request_throughput_rps"] is not None,
+            output_token_throughput_available=aggregate["output_token_throughput_tps"] is not None,
+            total_token_throughput_available=aggregate["total_token_throughput_tps"] is not None,
+            token_usage_available=(
+                total_input_tokens is not None
+                and total_output_tokens is not None
+                and total_tokens is not None
+            ),
+        )
         return cls(
             aggregate=aggregate,
+            capabilities=capabilities,
             **kwargs,
         )

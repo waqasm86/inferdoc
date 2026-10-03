@@ -13,3 +13,7 @@ they spend inference budget.
 Verification compares only compatible identities, evaluates every metric rule
 and constraint, and returns `PASS`, `FAIL`, or `INCONCLUSIVE`. Nemotron can
 explain a result afterward but cannot decide it.
+It also compares prompt hashes in order and every workload control. Declared
+changes must match their expected values, controlled fields must match both
+runs, and other fields cannot drift. Missing required evidence is
+`INCONCLUSIVE`; an observed mismatch is `FAIL`.

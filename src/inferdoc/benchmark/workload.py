@@ -27,7 +27,7 @@ class WorkloadSpec(BaseModel):
         ge=0.0,
     )
 
-    stream: bool = True
+    stream: bool = False
 
     enable_thinking: bool = False
 

@@ -60,6 +60,13 @@ run = inferdoc.benchmark(
 print(run.aggregate)
 ```
 
+Non-streaming is the default because complete provider token usage supports
+token-throughput evidence. Use `inferdoc bench --stream "prompt"` to opt in to
+streaming TTFT measurement; this implementation does not retain streaming
+token usage, so token-throughput metrics can be unavailable. Run-level
+`EvidenceCapabilities` separates backend support from values observed in a
+particular run. GPU utilization and KV-cache telemetry are unsupported.
+
 Use `inferdoc.diagnose(run)` to obtain a typed `DiagnosisReport`, then admit
 its `ExperimentSpec` with `inferdoc.validate_experiment`. The closed-loop
 example shows the complete lifecycle.
