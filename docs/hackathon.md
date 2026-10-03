@@ -25,3 +25,7 @@ Python owns facts; Nemotron owns bounded reasoning.
 The demo is intentionally small and credit-aware. Ordinary tests never call
 Token Factory. Live examples require both an API key and
 `INFERDOC_RUN_LIVE_TESTS=1`.
+
+The optional closed-loop integration regression uses two short prompts and
+accepts PASS, FAIL, INCONCLUSIVE, or a typed no-experiment outcome. Enabling it
+spends Nebius credits. CI keeps `INFERDOC_RUN_LIVE_TESTS=0`.
