@@ -12,6 +12,7 @@ InferDoc has six deliberately small boundaries:
 5. `experiments` describes changes, controls, objectives, and constraints;
    policy admission rejects controls the backend cannot execute.
 6. `verification` compares baseline and candidate facts using Python only.
+7. `workflows` composes these existing steps for SDK, CLI, and examples.
 
 ```text
 Token Factory → BenchmarkRunner → EvidenceBundle → read-only tools → Nemotron

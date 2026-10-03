@@ -9,12 +9,14 @@ from .experiments.policy import AdmissionDecision, BackendCapabilities, validate
 from .nebius.client import NebiusClient, chat
 from .nebius.observability import ObservabilitySnapshot, UnsupportedObservabilityAdapter
 from .verification.verifier import VerificationReport, VerificationStatus, verify
+from .workflows import ClosedLoopResult, run_closed_loop
 
 __all__ = [
     "AdmissionDecision",
     "AsyncBenchmarkRunner",
     "BackendCapabilities",
     "BenchmarkLimits",
+    "ClosedLoopResult",
     "DoctorAgent",
     "EvidenceBundle",
     "ExperimentSpec",
@@ -29,6 +31,7 @@ __all__ = [
     "diagnose",
     "validate_experiment",
     "verify",
+    "run_closed_loop",
 ]
 
 __version__ = "0.1.0"
