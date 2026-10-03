@@ -127,6 +127,11 @@ It performs a baseline benchmark, Nemotron tool-driven diagnosis, admission,
 candidate benchmark, and deterministic verification. A failed or inconclusive
 result is a valid scientific outcome; the example never fabricates success.
 
+`tests/integration/test_live_closed_loop.py` is an optional live regression.
+It spends Nebius credits only when `INFERDOC_RUN_LIVE_TESTS=1` and
+`NEBIUS_API_KEY` are both set. Normal CI fixes the gate to `0` and skips this
+test. It checks workflow structure, not a guaranteed speedup or PASS result.
+
 ## Why the product exists
 
 Prometheus/Grafana can show metrics but do not formulate and verify a bounded
