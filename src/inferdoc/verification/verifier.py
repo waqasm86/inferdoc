@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from ..evidence.models import EvidenceBundle
 from ..experiments.models import Constraint, ExperimentSpec, MetricDirection, MetricRule
+from .comparability import compare_workloads
 
 
 class VerificationStatus(StrEnum):
@@ -109,20 +110,8 @@ def _constraint(rule: Constraint, candidate: float | None) -> ConstraintEvaluati
 def verify(
     *, baseline: EvidenceBundle, candidate: EvidenceBundle, experiment: ExperimentSpec
 ) -> VerificationReport:
-    reasons: list[str] = []
-    if baseline.backend != candidate.backend or baseline.model != candidate.model:
-        reasons.append("baseline and candidate backend/model identities differ")
-    if experiment.baseline_run_id != baseline.run_id:
-        reasons.append("experiment baseline_run_id does not identify the supplied baseline")
-    for name, expected in experiment.controlled_variables.items():
-        baseline_value = baseline.workload.get(name, baseline.parameters.get(name))
-        candidate_value = candidate.workload.get(name, candidate.parameters.get(name))
-        if baseline_value != expected or candidate_value != expected:
-            reasons.append(f"controlled variable {name!r} was not held at {expected!r}")
-    for name, expected in experiment.changed_variables.items():
-        candidate_value = candidate.workload.get(name, candidate.parameters.get(name))
-        if candidate_value != expected:
-            reasons.append(f"candidate did not apply changed variable {name!r}={expected!r}")
+    comparison = compare_workloads(baseline, candidate, experiment)
+    reasons = [*comparison.mismatches, *comparison.missing]
     metric_results = [
         _rule(r, _metric(baseline, r.metric), _metric(candidate, r.metric))
         for r in experiment.verification_metrics
@@ -130,13 +119,13 @@ def verify(
     constraint_results = [
         _constraint(r, _metric(candidate, r.metric)) for r in experiment.constraints
     ]
-    if any(x.passed is None for x in [*metric_results, *constraint_results]):
-        status = VerificationStatus.INCONCLUSIVE
-        reasons.append("required evidence is missing or not comparable")
-    elif reasons or not all(x.passed for x in [*metric_results, *constraint_results]):
+    if comparison.mismatches:
         status = VerificationStatus.FAIL
-        if reasons:
-            reasons.append("identity comparison failed")
+    elif comparison.missing or any(x.passed is None for x in [*metric_results, *constraint_results]):
+        status = VerificationStatus.INCONCLUSIVE
+        reasons.append("required evidence is missing")
+    elif not all(x.passed for x in [*metric_results, *constraint_results]):
+        status = VerificationStatus.FAIL
     else:
         status = VerificationStatus.PASS
     return VerificationReport(

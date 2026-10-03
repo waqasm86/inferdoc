@@ -30,7 +30,7 @@ def _parser() -> argparse.ArgumentParser:
     bench.add_argument("--model", default=None)
     bench.add_argument("--concurrency", type=int, default=1)
     bench.add_argument("--max-tokens", type=int, default=64)
-    bench.add_argument("--no-stream", action="store_true")
+    bench.add_argument("--stream", action="store_true", help="opt in to TTFT measurement; token usage may be unavailable")
     bench.add_argument("--artifact-dir", default=None)
 
     runs = sub.add_parser("runs", help="list locally persisted runs")
@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
             prompts=args.prompts,
             concurrency=args.concurrency,
             max_tokens=args.max_tokens,
-            stream=not args.no_stream,
+            stream=args.stream,
         )
         path = ArtifactStore(settings.artifact_dir).save(bundle)
         print(

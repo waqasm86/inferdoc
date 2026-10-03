@@ -296,16 +296,6 @@ class AsyncBenchmarkRunner:
                     workload.model_dump()
                 ),
                 requests=requests,
-                capabilities={
-                    "observable": [
-                        "latency_s",
-                        "ttft_s",
-                        "request_throughput_rps",
-                        "output_token_throughput_tps",
-                        "total_token_throughput_tps",
-                        "token_usage",
-                    ]
-                },
                 elapsed_s=elapsed_s,
                 provenance={
                     "config_sha256":
@@ -339,7 +329,7 @@ def benchmark(
     concurrency: int = 1,
     max_tokens: int = 64,
     temperature: float = 0.0,
-    stream: bool = True,
+    stream: bool = False,
     enable_thinking: bool = False,
     client: ChatLike | None = None,
     limits: BenchmarkLimits | None = None,
