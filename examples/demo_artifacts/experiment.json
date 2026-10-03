@@ -1,0 +1,27 @@
+{
+  "id": "exp-concurrency-2",
+  "hypothesis": "Increasing concurrency to 2 will increase output-token throughput.",
+  "backend": "nebius-token-factory",
+  "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+  "baseline_run_id": "run-20261002T170236-9ca5a6c7",
+  "changed_variables": {
+    "concurrency": 2
+  },
+  "controlled_variables": {
+    "max_tokens": 64,
+    "temperature": 0.0,
+    "stream": false,
+    "enable_thinking": false
+  },
+  "objective": "increase output_token_throughput_tps",
+  "verification_metrics": [
+    {
+      "metric": "output_token_throughput_tps",
+      "direction": "maximize",
+      "minimum_relative_change": 0.01,
+      "maximum_relative_regression": null
+    }
+  ],
+  "constraints": [],
+  "rationale": "Run a single bounded concurrency experiment while holding the workload fixed."
+}

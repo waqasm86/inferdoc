@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "run_id": "demo_artifacts",
+  "baseline_run_id": "run-20261002T170236-9ca5a6c7",
+  "candidate_run_id": "run-20261002T170320-925301ab",
+  "experiment_id": "exp-concurrency-2",
+  "artifacts": {
+    "baseline.json": {
+      "sha256": "c34d2b7b07705fe6aa2e066557e988f014f36dfc8ed2e7c5a3803d83d8dd6dc5",
+      "kind": "baseline"
+    },
+    "diagnosis.json": {
+      "sha256": "8f4fce95d45461d9808f22806cf60b5021da46ef3c32236090722c93191e06e2",
+      "kind": "diagnosis"
+    },
+    "experiment.json": {
+      "sha256": "7d207ddd6bfed84722128cd3f903bd030bdc818911051fb8238ef07cf3d5b55f",
+      "kind": "experiment"
+    },
+    "candidate.json": {
+      "sha256": "c7ce556a83edf0e6faa289c5c44d54899d50c10ee9d0be358d1571d622e56f24",
+      "kind": "candidate"
+    },
+    "verification.json": {
+      "sha256": "8c01e607299a60e8fd8b31754a1b1a96a2e2f1f0db075828e39bcc0002d2954a",
+      "kind": "verification"
+    }
+  }
+}

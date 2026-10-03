@@ -91,6 +91,15 @@ admission rejected a proposed experiment. Exit code 1 means a runtime failure.
 The reusable `inferdoc.run_closed_loop` coroutine provides the same workflow
 to Python callers.
 
+## Offline replay and artifact integrity
+
+`python3.11 examples/05_replay_verification.py` replays sanitized evidence
+from one measured closed-loop run. It needs no API key, network, or Token
+Factory credits. `ArtifactStore` records canonical SHA-256 hashes for saved
+evidence, diagnosis, experiment, and verification JSON in each run's
+`manifest.json`; `verify_manifest` detects missing or changed files. The
+example is one captured outcome, not a performance guarantee.
+
 ## What is deterministic?
 
 Python owns timestamps, request outcomes, token usage, latency percentiles,

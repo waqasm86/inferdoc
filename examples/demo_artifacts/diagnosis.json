@@ -1,0 +1,47 @@
+{
+  "measured_facts": [
+    "The run completed with 8 successful requests and an output token throughput of 29.44 tokens per second.",
+    "Latency p95 was 5.15 seconds and the mean latency was 1.80 seconds.",
+    "The workload was executed with a concurrency level of 1."
+  ],
+  "derived_facts": [
+    "The observed output token throughput reflects the performance at concurrency 1.",
+    "All other workload parameters (max_tokens, temperature, stream, enable_thinking) were held constant.",
+    "The ttft_s metric could not be retrieved, indicating missing evidence."
+  ],
+  "hypotheses": [
+    "Increasing concurrency is expected to increase output token throughput."
+  ],
+  "missing_evidence": [
+    "ttft_s"
+  ],
+  "recommendation_summary": "Increase concurrency to 2 in a controlled experiment to test throughput improvement.",
+  "experiment": {
+    "id": "exp-concurrency-2",
+    "hypothesis": "Increasing concurrency to 2 will increase output-token throughput.",
+    "backend": "nebius-token-factory",
+    "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+    "baseline_run_id": "run-20261002T170236-9ca5a6c7",
+    "changed_variables": {
+      "concurrency": 2
+    },
+    "controlled_variables": {
+      "max_tokens": 64,
+      "temperature": 0.0,
+      "stream": false,
+      "enable_thinking": false
+    },
+    "objective": "increase output_token_throughput_tps",
+    "verification_metrics": [
+      {
+        "metric": "output_token_throughput_tps",
+        "direction": "maximize",
+        "minimum_relative_change": 0.01,
+        "maximum_relative_regression": null
+      }
+    ],
+    "constraints": [],
+    "rationale": "Run a single bounded concurrency experiment while holding the workload fixed."
+  },
+  "audit_log": []
+}
