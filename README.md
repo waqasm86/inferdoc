@@ -71,6 +71,26 @@ Use `inferdoc.diagnose(run)` to obtain a typed `DiagnosisReport`, then admit
 its `ExperimentSpec` with `inferdoc.validate_experiment`. The closed-loop
 example shows the complete lifecycle.
 
+## Closed-loop CLI
+
+```bash
+inferdoc closed-loop \
+  --prompt "Explain TTFT briefly." \
+  --prompt "Explain throughput briefly." \
+  --concurrency 1 --max-tokens 64
+```
+
+Pass `--prompts-file prompts.txt` for one prompt per line. The command writes
+artifacts to `.inferdoc/runs` by default; `--artifact-dir` changes that path.
+Workload requests default to non-streaming and thinking disabled. The Doctor
+uses Nemotron reasoning separately. The JSON summary includes run IDs,
+admission, verification status, metric results, and artifact directory.
+Exit code 0 means the workflow completed, including a measured FAIL or
+INCONCLUSIVE or no executable recommendation. Exit code 2 means deterministic
+admission rejected a proposed experiment. Exit code 1 means a runtime failure.
+The reusable `inferdoc.run_closed_loop` coroutine provides the same workflow
+to Python callers.
+
 ## What is deterministic?
 
 Python owns timestamps, request outcomes, token usage, latency percentiles,
