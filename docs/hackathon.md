@@ -29,3 +29,13 @@ Token Factory. Live examples require both an API key and
 The optional closed-loop integration regression uses two short prompts and
 accepts PASS, FAIL, INCONCLUSIVE, or a typed no-experiment outcome. Enabling it
 spends Nebius credits. CI keeps `INFERDOC_RUN_LIVE_TESTS=0`.
+
+**Judging walkthrough.** Notebook
+[`03_closed_loop_experiment.ipynb`](../notebooks/03_closed_loop_experiment.ipynb)
+is the flagship demonstration of Token Factory inference, Nemotron evidence
+analysis, one admitted control change, and Python verification. Judges can
+run [`04_offline_replay_and_audit.ipynb`](../notebooks/04_offline_replay_and_audit.ipynb)
+without credentials or credits to inspect the measured example and hashes.
+The product identity is an evidence-driven LLM inference doctor for Nebius
+Token Factory. Serverless evidence does not claim GPU utilization, KV-cache
+telemetry, or provider internals.
