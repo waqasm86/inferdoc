@@ -141,3 +141,31 @@ def test_prompts_file_alone_and_runtime_failure(monkeypatch, tmp_path, capsys):
     monkeypatch.setattr("inferdoc.workflows.run_closed_loop", fail)
     assert main(["closed-loop", "--prompts-file", str(path)]) == 1
     assert "RuntimeError" in capsys.readouterr().err
+
+
+def test_doctor_rejection_sets_cli_exit_two(monkeypatch, evidence, capsys):
+    monkeypatch.setattr("inferdoc.cli.InferDocSettings.from_env",
+                        lambda **kw: InferDocSettings(api_key="fake-test-key"))
+
+    class Client:
+        def __init__(self, **kwargs):
+            pass
+
+        async def aclose(self):
+            pass
+
+    async def rejected(**kwargs):
+        admission = AdmissionDecision(approved=False, experiment_id="exp-rejected",
+                                      reasons=["unsupported control"])
+        return ClosedLoopResult(
+            baseline=evidence,
+            diagnosis=DiagnosisReport(recommendation_summary="rejected", admission=admission),
+            admission=admission,
+        )
+
+    monkeypatch.setattr("inferdoc.nebius.client.NebiusClient", Client)
+    monkeypatch.setattr("inferdoc.workflows.run_closed_loop", rejected)
+    assert main(["closed-loop", "--prompt", "one"]) == 2
+    summary = json.loads(capsys.readouterr().out)
+    assert summary["experiment_id"] == "exp-rejected"
+    assert summary["admission_approved"] is False

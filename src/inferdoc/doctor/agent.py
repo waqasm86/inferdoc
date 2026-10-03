@@ -118,6 +118,7 @@ class DoctorAgent:
                 baseline=bundle,
                 max_changed_variables=1,
             )
+            report.admission = decision
             if not decision.approved:
                 report.missing_evidence.extend(decision.reasons)
                 report.experiment = None

@@ -136,7 +136,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({
             "baseline_run_id": result.baseline.run_id,
             "candidate_run_id": result.candidate.run_id if result.candidate else None,
-            "experiment_id": experiment.id if experiment else None,
+            "experiment_id": experiment.id if experiment else (result.admission.experiment_id if result.admission else None),
             "admission_approved": result.admission.approved if result.admission else None,
             "verification_status": result.verification.status if result.verification else None,
             "metric_results": [metric.model_dump(mode="json") for metric in result.verification.metric_results] if result.verification else [],
