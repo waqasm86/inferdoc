@@ -20,5 +20,8 @@ completion token counts. If usage or TTFT is unavailable, the corresponding
 aggregate is `None`; no zero is substituted. Chunk boundaries are not called
 TPOT or inter-token latency.
 
-`ArtifactStore` writes `evidence.json` and an `audit.json` containing a SHA256
-of canonical evidence. JSON is intentionally human-readable and portable.
+`ArtifactStore` writes `evidence.json`, an `audit.json` containing a SHA256
+of canonical evidence, and `manifest.json` with canonical SHA256 hashes for
+each saved artifact. Manifest updates replace one local JSON file atomically.
+`verify_manifest` reports missing and changed files without repairing them.
+JSON is intentionally human-readable and portable.

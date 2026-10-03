@@ -61,6 +61,11 @@ async def run_closed_loop(
         baseline=baseline, candidate=candidate, experiment=diagnosis.experiment
     )
     store.save_verification(verification, candidate.run_id)
+    store.link_closed_loop(
+        baseline_run_id=baseline.run_id,
+        candidate_run_id=candidate.run_id,
+        experiment_id=diagnosis.experiment.id,
+    )
     return ClosedLoopResult(
         baseline=baseline,
         diagnosis=diagnosis,

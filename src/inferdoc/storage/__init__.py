@@ -1,3 +1,3 @@
-from .artifacts import ArtifactStore
+from .artifacts import ArtifactStore, ManifestVerification
 
-__all__ = ["ArtifactStore"]
+__all__ = ["ArtifactStore", "ManifestVerification"]

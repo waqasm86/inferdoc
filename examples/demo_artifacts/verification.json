@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "baseline_run_id": "run-20261002T170236-9ca5a6c7",
+  "candidate_run_id": "run-20261002T170320-925301ab",
+  "experiment_id": "exp-concurrency-2",
+  "metric_results": [
+    {
+      "metric": "output_token_throughput_tps",
+      "baseline": 29.438611784558052,
+      "candidate": 151.65512337295183,
+      "relative_change": 4.151571836430892,
+      "passed": true,
+      "reason": "threshold met"
+    }
+  ],
+  "constraint_results": [],
+  "reasons": []
+}
