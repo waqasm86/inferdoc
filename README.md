@@ -2,6 +2,9 @@
 
 **Evidence-driven LLM Inference Doctor for Nebius Token Factory**
 
+Built for the Nebius x NVIDIA Global AI Hackathon, Best Apps and Agents
+track, with `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
+
 InferDoc is a small Python SDK for turning hosted inference observations into
 controlled, experimentally verified decisions. Nebius Token Factory performs
 hosted inference. InferDoc benchmarks that workload, stores reproducible evidence, asks NVIDIA Nemotron to
@@ -99,6 +102,24 @@ Factory credits. `ArtifactStore` records canonical SHA-256 hashes for saved
 evidence, diagnosis, experiment, and verification JSON in each run's
 `manifest.json`; `verify_manifest` detects missing or changed files. The
 example is one captured outcome, not a performance guarantee.
+
+## Jupyter notebooks
+
+Install the optional notebook tools with
+`python3.11 -m pip install -e ".[notebooks]"`, then launch Jupyter from the
+repository root. The notebooks import the real InferDoc package:
+
+| Notebook | Stage |
+| --- | --- |
+| `00_token_factory_quickstart.ipynb` | Token Factory quickstart |
+| `01_benchmark_evidence.ipynb` | Evidence benchmarking |
+| `02_nemotron_diagnosis.ipynb` | Nemotron diagnosis and admission |
+| `03_closed_loop_experiment.ipynb` | Complete closed loop, flagship demo |
+| `04_offline_replay_and_audit.ipynb` | Offline replay and manifest audit |
+
+Notebooks 00–03 may spend Token Factory credits only when their live gate is
+explicitly enabled; notebook 04 is completely offline. See
+[notebooks/README.md](notebooks/README.md) for setup and per-notebook behavior.
 
 ## What is deterministic?
 
