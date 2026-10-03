@@ -44,7 +44,8 @@ async def run_closed_loop(
     diagnosis = await DoctorAgent(client, capabilities=capabilities).adiagnose(baseline)
     store.save_diagnosis(diagnosis, baseline.run_id)
     if diagnosis.experiment is None:
-        return ClosedLoopResult(baseline=baseline, diagnosis=diagnosis)
+        return ClosedLoopResult(baseline=baseline, diagnosis=diagnosis,
+                                admission=diagnosis.admission)
 
     admission = validate_experiment(
         diagnosis.experiment, capabilities, baseline=baseline, max_changed_variables=1

@@ -3,6 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 from ..experiments.models import ExperimentSpec
+from ..experiments.policy import AdmissionDecision
 
 
 class DiagnosisReport(BaseModel):
@@ -12,4 +13,5 @@ class DiagnosisReport(BaseModel):
     missing_evidence: list[str] = Field(default_factory=list)
     recommendation_summary: str
     experiment: ExperimentSpec | None = None
+    admission: AdmissionDecision | None = None
     audit_log: list[dict[str, object]] = Field(default_factory=list)

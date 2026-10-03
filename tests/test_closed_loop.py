@@ -5,6 +5,7 @@ import pytest
 from inferdoc.benchmark.workload import WorkloadSpec
 from inferdoc.doctor.models import DiagnosisReport
 from inferdoc.storage import ArtifactStore
+from inferdoc.experiments.policy import AdmissionDecision
 from inferdoc.verification import VerificationStatus
 from inferdoc.workflows import run_closed_loop
 from test_policy_verification import experiment
@@ -55,3 +56,26 @@ def test_reusable_workflow(monkeypatch, tmp_path, evidence, concurrency, expecte
     else:
         assert result.admission is None
         assert "rerun" not in calls
+
+
+def test_doctor_rejection_survives_workflow(monkeypatch, tmp_path, evidence):
+    async def baseline_run(self, workload, *, model=None):
+        return evidence.model_copy(deep=True)
+
+    async def rejected(self, baseline):
+        return DiagnosisReport(
+            recommendation_summary="proposal rejected",
+            admission=AdmissionDecision(approved=False, experiment_id="exp-rejected",
+                                        reasons=["unsupported control"]),
+        )
+
+    monkeypatch.setattr("inferdoc.workflows.closed_loop.AsyncBenchmarkRunner.run", baseline_run)
+    monkeypatch.setattr("inferdoc.workflows.closed_loop.DoctorAgent.adiagnose", rejected)
+    result = asyncio.run(run_closed_loop(
+        client=object(), workload=WorkloadSpec(prompts=["one"]),
+        artifact_store=ArtifactStore(tmp_path),
+    ))
+    assert result.diagnosis.experiment is None
+    assert result.admission is not None and not result.admission.approved
+    assert result.admission.experiment_id == "exp-rejected"
+    assert result.candidate is None

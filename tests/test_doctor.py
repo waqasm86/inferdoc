@@ -216,6 +216,8 @@ def test_doctor_rejects_impossible_control(evidence) -> None:
 
     report = asyncio.run(DoctorAgent(FakeDoctor(final)).adiagnose(evidence))
     assert report.experiment is None
+    assert report.admission is not None and not report.admission.approved
+    assert report.admission.experiment_id == "exp-unsupported"
     assert any("tensor_parallel_size" in item for item in report.missing_evidence)
 
 
