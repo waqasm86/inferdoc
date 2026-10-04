@@ -1,3 +1,5 @@
+import pytest
+
 from inferdoc.experiments.capabilities import TOKEN_FACTORY_CAPABILITIES
 from inferdoc.experiments.models import Constraint, ExperimentSpec, MetricDirection, MetricRule
 from inferdoc.experiments.policy import validate_experiment
@@ -93,3 +95,26 @@ def test_policy_can_limit_experiment_to_one_changed_variable(evidence) -> None:
     )
     assert not decision.approved
     assert "policy limit is 1" in " ".join(decision.reasons)
+
+
+@pytest.mark.parametrize(
+    "changed",
+    [
+        {"concurrency": "two"},
+        {"concurrency": True},
+        {"max_tokens": 1.5},
+        {"temperature": float("nan")},
+        {"temperature": 10**1000},
+        {"stream": "true"},
+        {"prompts": []},
+        {"prompts": ["ok", " "]},
+    ],
+)
+def test_policy_rejects_invalid_control_values_before_rerun(evidence, changed) -> None:
+    decision = validate_experiment(
+        experiment(evidence.run_id, changed),
+        TOKEN_FACTORY_CAPABILITIES,
+        baseline=evidence,
+    )
+    assert not decision.approved
+    assert decision.reasons

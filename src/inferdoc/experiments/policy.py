@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -75,7 +76,31 @@ def validate_experiment(
                 f"{name} is not an exposed control for this backend"
             )
 
-        if name in capabilities.domains and isinstance(value, (int, float)):
+        if name in {"concurrency", "max_tokens"} and (
+            type(value) is not int or value < 1
+        ):
+            reasons.append(f"{name} must be a positive integer")
+        elif name == "stream" and type(value) is not bool:
+            reasons.append("stream must be a boolean")
+        elif name == "prompts" and (
+            not isinstance(value, list)
+            or not value
+            or any(not isinstance(prompt, str) or not prompt.strip() for prompt in value)
+        ):
+            reasons.append("prompts must be a nonempty list of nonempty strings")
+
+        if name in capabilities.domains:
+            try:
+                valid_number = (
+                    not isinstance(value, bool)
+                    and isinstance(value, (int, float))
+                    and math.isfinite(value)
+                )
+            except OverflowError:
+                valid_number = False
+            if not valid_number:
+                reasons.append(f"{name} must be a finite number within its allowed range")
+                continue
             low, high = capabilities.domains[name]
 
             if not low <= value <= high:
