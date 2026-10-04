@@ -17,3 +17,5 @@ It also compares prompt hashes in order and every workload control. Declared
 changes must match their expected values, controlled fields must match both
 runs, and other fields cannot drift. Missing required evidence is
 `INCONCLUSIVE`; an observed mismatch is `FAIL`.
+
+See [experiments](experiments.md) for the policy and schema, [verification](verification.md) for outcomes, and [closed loop](closed-loop.md) for execution.

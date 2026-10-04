@@ -1,263 +1,100 @@
 # InferDoc
 
-**Evidence-driven LLM Inference Doctor for Nebius Token Factory**
-
-Built for the Nebius x NVIDIA Global AI Hackathon, Best Apps and Agents
-track, with `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
-
-InferDoc is a small Python SDK for turning hosted inference observations into
-controlled, experimentally verified decisions. Nebius Token Factory performs
-hosted inference. InferDoc benchmarks that workload, stores reproducible evidence, asks NVIDIA Nemotron to
-interpret that evidence and propose a bounded next experiment, admits or
-rejects that proposal deterministically, then verifies the measured rerun.
-
-The loop is:
+**Evidence-driven LLM inference engineering for Nebius Token Factory.** InferDoc measures a hosted workload, asks NVIDIA Nemotron for one bounded experiment, and uses Python to admit and verify the measured rerun.
 
 ```text
 INFER → MEASURE → ANALYZE → DIAGNOSE → RECOMMEND → VALIDATE → RERUN → VERIFY
 ```
 
-This makes InferDoc different from a playground, dashboard, API wrapper, or
-autotuner: a model recommendation is only a hypothesis until Python checks it
-against backend capabilities and a comparable benchmark.
+Nebius Token Factory performs hosted inference. Python owns request timing, success/failure, token accounting when returned, percentiles, throughput, capability admission, workload comparison, thresholds, and `PASS` / `FAIL` / `INCONCLUSIVE`. Nemotron interprets evidence, identifies missing information, and proposes a hypothesis; it does not decide the final status.
+
+Built for the Nebius x NVIDIA Global AI Hackathon, Best Apps and Agents track. The default workload and Doctor model is `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
 
 ## Install
 
-Install the published package from [PyPI](https://pypi.org/project/inferdoc/):
+Python 3.11 or newer is required. Install [InferDoc 0.1.0 from PyPI](https://pypi.org/project/inferdoc/):
 
 ```bash
 python3.11 -m pip install inferdoc
 ```
 
-For development from a checkout of this repository:
+For source development, use `python3.11 -m pip install -e ".[dev]"` from the checkout. Live calls require your own `NEBIUS_API_KEY` and spend Nebius Token Factory credits. The offline replay does not need a key.
+
+## 30-second offline check
+
+The package supplies the SDK; the [repository](https://github.com/waqasm86/inferdoc) supplies sanitized example artifacts:
 
 ```bash
-python3.11 -m pip install -e ".[dev]"
-```
-
-Set `NEBIUS_API_KEY` for live calls. The default endpoint is
-`https://api.tokenfactory.nebius.com/v1/`, and the default model is
-`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
-
-## Minimal API
-
-```python
-import inferdoc
-
-response = inferdoc.chat(
-    model="nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
-    prompt="Hello!",
-    max_tokens=64,
-    temperature=0.0,
-    chat_template_kwargs={"enable_thinking": False},
-)
-print(response.text)
-```
-
-For a bounded benchmark:
-
-```python
-run = inferdoc.benchmark(
-    model="nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
-    prompts=["What is TTFT?", "Explain tensor parallelism briefly."],
-    concurrency=2,
-    max_tokens=32,
-    stream=False,
-    enable_thinking=False,
-)
-print(run.aggregate)
-```
-
-Non-streaming is the default because complete provider token usage supports
-token-throughput evidence. Use `inferdoc bench --stream "prompt"` to opt in to
-streaming TTFT measurement; this implementation does not retain streaming
-token usage, so token-throughput metrics can be unavailable. Run-level
-`EvidenceCapabilities` separates backend support from values observed in a
-particular run. GPU utilization and KV-cache telemetry are unsupported.
-
-Use `inferdoc.diagnose(run)` to obtain a typed `DiagnosisReport`, then admit
-its `ExperimentSpec` with `inferdoc.validate_experiment`. The closed-loop
-example shows the complete lifecycle.
-
-## Closed-loop CLI
-
-```bash
-inferdoc closed-loop \
-  --prompt "Explain TTFT briefly." \
-  --prompt "Explain throughput briefly." \
-  --concurrency 1 --max-tokens 64
-```
-
-Pass `--prompts-file prompts.txt` for one prompt per line. The command writes
-artifacts to `.inferdoc/runs` by default; `--artifact-dir` changes that path.
-Workload requests default to non-streaming and thinking disabled. The Doctor
-uses Nemotron reasoning separately. The JSON summary includes run IDs,
-admission, verification status, metric results, and artifact directory.
-Exit code 0 means the workflow completed, including a measured FAIL or
-INCONCLUSIVE or no executable recommendation. Exit code 2 means deterministic
-admission rejected a proposed experiment. Exit code 1 means a runtime failure.
-The reusable `inferdoc.run_closed_loop` coroutine provides the same workflow
-to Python callers.
-
-## Offline replay and artifact integrity
-
-`python3.11 examples/05_replay_verification.py` replays sanitized evidence
-from one measured closed-loop run. It needs no API key, network, or Token
-Factory credits. `ArtifactStore` records canonical SHA-256 hashes for saved
-evidence, diagnosis, experiment, and verification JSON in each run's
-`manifest.json`; `verify_manifest` detects missing or changed files. The
-example is one captured outcome, not a performance guarantee.
-
-## Judge testing instructions
-
-Quick test without Nebius credits. PyPI supplies the package; the repository
-supplies the replay script and sanitized example artifacts:
-
-```bash
-python3.11 -m pip install inferdoc
 git clone https://github.com/waqasm86/inferdoc.git
 cd inferdoc
 python3.11 examples/05_replay_verification.py
 ```
 
-The replay checks sanitized measured evidence, artifact-manifest integrity,
-and deterministic verification.
+This checks the artifact manifest and recomputes a captured verification result without contacting Nebius. It is one measured example, not a speedup guarantee.
 
-For an optional live Token Factory check, set your own key in your shell and
-explicitly enable live tests:
+## Python quickstart
+
+These snippets make **live Token Factory requests** and spend credits:
+
+```python
+import inferdoc
+
+response = inferdoc.chat(
+    prompt="Define TTFT in one sentence.",
+    max_tokens=32,
+    temperature=0.0,
+    chat_template_kwargs={"enable_thinking": False},
+)
+print(response.text)
+
+run = inferdoc.benchmark(
+    prompts=["Define TTFT.", "Define throughput."],
+    concurrency=2,
+    max_tokens=32,
+    stream=False,
+)
+print(run.aggregate["latency_s"]["p95"])
+print(run.aggregate["output_token_throughput_tps"])
+```
+
+The synchronous helpers use `asyncio.run`; use `NebiusClient.achat` or `AsyncBenchmarkRunner` inside an existing event loop. Non-streaming retains provider token usage when returned but has no TTFT. Streaming can observe first content, while the current streaming path does not retain usage. Unavailable metrics stay `None`.
+
+## Closed loop
+
+This command measures a baseline, calls Nemotron for diagnosis, checks the proposed change against a narrow concurrency policy, optionally reruns it, and verifies comparable evidence in Python. It makes live calls and spends credits:
 
 ```bash
-python3.11 -m pip install pytest
-export NEBIUS_API_KEY=... # replace the placeholder in your own shell
-export INFERDOC_RUN_LIVE_TESTS=1
-python3.11 -m pytest -q tests/integration/test_live_smoke.py -s
-python3.11 -m pytest -q tests/integration/test_live_closed_loop.py -s
+inferdoc closed-loop --prompt "Define TTFT." --prompt "Define throughput." \
+  --concurrency 1 --max-tokens 32
 ```
 
-Live tests spend Nebius Token Factory credits. The offline replay does not.
+Python callers can use the `run_closed_loop` coroutine with `NebiusClient`, `WorkloadSpec`, and `ArtifactStore`; see the [closed-loop guide](docs/closed-loop.md). A missing or rejected proposal is valid. A candidate can legitimately yield `FAIL` or `INCONCLUSIVE`.
 
-## Jupyter notebooks
+## Key capabilities and boundaries
 
-Install the optional notebook tools with
-`python3.11 -m pip install -e ".[notebooks]"`, then launch Jupyter from the
-repository root. The notebooks import the real InferDoc package:
+- Bounded asynchronous benchmarks record per-request outcomes, aggregate latency percentiles, request throughput, and token throughput when usage is complete.
+- `EvidenceBundle` separates backend support from values actually observed in a run.
+- Nemotron uses read-only evidence tools and returns a typed `DiagnosisReport` with an optional `ExperimentSpec`.
+- Deterministic admission rejects unsupported server controls; the default closed-loop demo changes only client concurrency 1–8.
+- Python checks baseline/candidate workload comparability, metric objectives, and constraints before returning `PASS`, `FAIL`, or `INCONCLUSIVE`.
+- `ArtifactStore` saves local JSON and canonical SHA-256 manifests. Evidence prompt fields are redacted by default, but other free text still needs review before sharing.
 
-| Notebook | Stage |
-| --- | --- |
-| `00_token_factory_quickstart.ipynb` | Token Factory quickstart |
-| `01_benchmark_evidence.ipynb` | Evidence benchmarking |
-| `02_nemotron_diagnosis.ipynb` | Nemotron diagnosis and admission |
-| `03_closed_loop_experiment.ipynb` | Complete closed loop, flagship demo |
-| `04_offline_replay_and_audit.ipynb` | Offline replay and manifest audit |
+InferDoc targets hosted Token Factory. It does not expose serverless GPU utilization or KV-cache telemetry, run local CUDA/vLLM, guarantee an improvement, or turn model reasoning into measured facts. See [limitations](docs/limitations.md) and [security and privacy](docs/security-and-privacy.md).
 
-Notebooks 00–03 may spend Token Factory credits only when their live gate is
-explicitly enabled; notebook 04 is completely offline. See
-[notebooks/README.md](notebooks/README.md) for setup and per-notebook behavior.
+## Documentation
 
-## What is deterministic?
+The [documentation home](docs/README.md) links the full guide and [API reference](docs/api-reference.md). Start with [getting started](docs/getting-started.md), then [configuration](docs/configuration.md), [benchmarking](docs/benchmarking.md), [diagnosis](docs/diagnosis.md), [experiments](docs/experiments.md), [verification](docs/verification.md), and [CLI](docs/cli.md). [Examples](docs/examples.md), [notebooks](docs/notebooks.md), [artifacts](docs/artifacts.md), and [troubleshooting](docs/troubleshooting.md) cover practical use.
 
-Python owns timestamps, request outcomes, token usage, latency percentiles,
-throughput, comparisons, capability checks, thresholds, and PASS/FAIL/
-INCONCLUSIVE. Nemotron owns interpretation, hypotheses, missing-evidence
-questions, and experiment rationale. It cannot execute shell commands or edit
-evidence, and its proposed controls are rejected when Token Factory does not
-expose them.
+The five [Jupyter notebooks](notebooks/README.md) include the flagship live closed-loop walkthrough and a fully offline replay. Live notebook cells are opt-in and can spend credits.
 
-`PASS` means the candidate met every requested objective and constraint;
-`FAIL` means comparable evidence disproved the objective or violated a
-constraint; `INCONCLUSIVE` means required evidence or comparability was
-missing. Missing values remain `None`, never zero.
-
-## Closed-loop demo
-
-`examples/04_closed_loop.py` makes a deliberately small number of live calls
-only when `INFERDOC_RUN_LIVE_TESTS=1` and `NEBIUS_API_KEY` are set:
-
-```bash
-INFERDOC_RUN_LIVE_TESTS=1 python3.11 examples/04_closed_loop.py
-```
-
-It performs a baseline benchmark, Nemotron tool-driven diagnosis, admission,
-candidate benchmark, and deterministic verification. A failed or inconclusive
-result is a valid scientific outcome; the example never fabricates success.
-
-`tests/integration/test_live_closed_loop.py` is an optional live regression.
-It spends Nebius credits only when `INFERDOC_RUN_LIVE_TESTS=1` and
-`NEBIUS_API_KEY` are both set. Normal CI fixes the gate to `0` and skips this
-test. It checks workflow structure, not a guaranteed speedup or PASS result.
-
-## Why the product exists
-
-Prometheus/Grafana can show metrics but do not formulate and verify a bounded
-next experiment. LiteLLM normalizes providers but is not an inference study.
-Autotuners search parameter spaces, while InferDoc asks one evidence-grounded
-question and checks the answer cheaply. Nemotron is useful here as a bounded
-reasoning layer over structured facts, while Python remains the authority for
-measurement.
-
-## Layout
-
-```text
-src/inferdoc/{nebius,benchmark,evidence,doctor,experiments,verification,storage}
-examples/                  small runnable workflows
-docs/                      architecture, schemas, hackathon mapping
-tests/                     offline unit tests; live tests are opt-in
-```
-
-See [docs/architecture.md](docs/architecture.md), [docs/evidence-model.md](docs/evidence-model.md),
-[docs/experiment-model.md](docs/experiment-model.md), and
-[docs/hackathon.md](docs/hackathon.md). InferDoc uses `httpx` directly so the
-core install stays small; an optional `openai` extra is available for projects
-that already use the official OpenAI client.
-
-## Security and scope
-
-Keys come from the environment and are never written to evidence. Prompt text is redacted from persisted evidence by default. InferDoc keeps prompt hashes,
-lengths, token counts, timings, and aggregate metrics. A caller must explicitly opt in with
-`ArtifactStore(store_prompts=True)` to persist raw prompt text. InferDoc has no GPU, CUDA, vLLM, Ray, Kaggle, or multi-cloud dependency.
-Dedicated-endpoint observability is an optional future adapter; ordinary
-serverless Token Factory calls do not imply GPU utilization or KV-cache telemetry.
-
-## License
-
-Apache-2.0. Copyright 2026 InferDoc contributors. Design influences are documented without vendoring reference
-implementations.
-
-## Hackathon evidence contract
-
-```text
-Nebius Token Factory performs inference
-        ↓
-Python measures and aggregates evidence
-        ↓
-NVIDIA Nemotron interprets read-only evidence and proposes one bounded experiment
-        ↓
-Python validates backend capabilities and policy
-        ↓
-InferDoc reruns the controlled workload
-        ↓
-Python returns PASS / FAIL / INCONCLUSIVE
-```
-
-InferDoc does not treat Nemotron output as measurement truth. Numerical metrics,
-capability admission, constraints, comparisons, and verification outcomes are
-computed deterministically from observed requests.
-
-For the hackathon demo, `examples/04_closed_loop.py` deliberately limits the
-automatic experiment to one changed variable: client concurrency. Model, prompt
-set, temperature, maximum output tokens, and streaming mode remain controlled.
-
-## Build a release
+## Testing and development
 
 ```bash
 python3.11 -m pip install -e ".[dev]"
-python3.11 -m compileall -q src examples tests
+INFERDOC_RUN_LIVE_TESTS=0 python3.11 -m compileall -q src examples tests
 INFERDOC_RUN_LIVE_TESTS=0 python3.11 -m pytest -q
-python3.11 -m build --no-isolation
-python3.11 -m twine check dist/*
 ```
 
-Version 0.1.0 was published through the [GitHub Release](https://github.com/waqasm86/inferdoc/releases/tag/v0.1.0)
-and `.github/workflows/release.yml` using PyPI Trusted Publishing. The
-[PyPI release](https://pypi.org/project/inferdoc/0.1.0/) contains the wheel and
-source distribution.
+Normal tests mock Token Factory; live integration tests remain skipped unless explicitly enabled. See [development](docs/development.md), [contributing](CONTRIBUTING.md), and the [release process](docs/release.md).
+
+InferDoc is licensed under [Apache-2.0](LICENSE). Source, issues, and releases are at [GitHub](https://github.com/waqasm86/inferdoc).

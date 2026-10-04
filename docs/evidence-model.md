@@ -25,3 +25,5 @@ of canonical evidence, and `manifest.json` with canonical SHA256 hashes for
 each saved artifact. Manifest updates replace one local JSON file atomically.
 `verify_manifest` reports missing and changed files without repairing them.
 JSON is intentionally human-readable and portable.
+
+For fields, missing-value behavior, and local JSON storage, see [evidence](evidence.md), [benchmarking](benchmarking.md), and [artifacts](artifacts.md).

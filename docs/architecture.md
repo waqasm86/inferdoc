@@ -1,6 +1,6 @@
 # Architecture
 
-InferDoc has six deliberately small boundaries:
+InferDoc has seven deliberately small boundaries:
 
 1. `nebius` sends OpenAI-compatible requests to Token Factory and normalizes
    errors and usage.
@@ -23,3 +23,5 @@ Token Factory → BenchmarkRunner → EvidenceBundle → read-only tools → Nem
 The core uses `httpx` instead of wrapping every OpenAI feature. This keeps the
 dependency surface small and makes streaming timing and error handling explicit.
 The raw HTTP client remains available as `NebiusClient.raw`.
+
+See [concepts](concepts.md), [closed loop](closed-loop.md), and the [API reference](api-reference.md).
