@@ -18,4 +18,5 @@ outcome honestly; do not substitute a claimed PASS.
 | 2:40–2:55 | Show notebook 04 offline replay, SHA-256 manifest, and in-memory tamper detection. |
 | 2:55–3:00 | Show GitHub and install command; close. |
 
-Before publication, add the public YouTube URL to `docs/devpost-submission.md`.
+Before Devpost submission, add the public YouTube URL to
+`docs/devpost-submission.md`.

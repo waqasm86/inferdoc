@@ -23,13 +23,13 @@ against backend capabilities and a comparable benchmark.
 
 ## Install
 
-For the public 0.1.0 release, after PyPI publication:
+Install the published package from [PyPI](https://pypi.org/project/inferdoc/):
 
 ```bash
 python3.11 -m pip install inferdoc
 ```
 
-Until publication, install from this repository. For development:
+For development from a checkout of this repository:
 
 ```bash
 python3.11 -m pip install -e ".[dev]"
@@ -110,7 +110,8 @@ example is one captured outcome, not a performance guarantee.
 
 ## Judge testing instructions
 
-Quick test without Nebius credits, using the public package after publication:
+Quick test without Nebius credits. PyPI supplies the package; the repository
+supplies the replay script and sanitized example artifacts:
 
 ```bash
 python3.11 -m pip install inferdoc
@@ -119,9 +120,8 @@ cd inferdoc
 python3.11 examples/05_replay_verification.py
 ```
 
-Before PyPI publication, clone the repository first and run
-`python3.11 -m pip install -e .` inside it. The replay checks sanitized measured
-evidence, artifact-manifest integrity, and deterministic verification.
+The replay checks sanitized measured evidence, artifact-manifest integrity,
+and deterministic verification.
 
 For an optional live Token Factory check, set your own key in your shell and
 explicitly enable live tests:
@@ -257,6 +257,7 @@ python3.11 -m build --no-isolation
 python3.11 -m twine check dist/*
 ```
 
-The repository includes `.github/workflows/release.yml` for PyPI Trusted
-Publishing. Publishing is triggered by a GitHub Release after the matching
-Trusted Publisher is configured on PyPI.
+Version 0.1.0 was published through the [GitHub Release](https://github.com/waqasm86/inferdoc/releases/tag/v0.1.0)
+and `.github/workflows/release.yml` using PyPI Trusted Publishing. The
+[PyPI release](https://pypi.org/project/inferdoc/0.1.0/) contains the wheel and
+source distribution.

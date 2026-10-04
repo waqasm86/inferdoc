@@ -4,8 +4,9 @@
 - **Track:** Best Apps and Agents
 - **Tagline:** Evidence-driven LLM inference doctor for Nebius Token Factory.
 - **GitHub:** https://github.com/waqasm86/inferdoc
-- **PyPI:** [pending verified publication of `inferdoc==0.1.0`]
-- **Working demo/test build:** https://github.com/waqasm86/inferdoc (Python SDK/CLI and offline replay; add the GitHub Release URL after release)
+- **PyPI:** https://pypi.org/project/inferdoc/0.1.0/
+- **GitHub Release:** https://github.com/waqasm86/inferdoc/releases/tag/v0.1.0
+- **Working demo/test build:** https://pypi.org/project/inferdoc/0.1.0/ (Python SDK/CLI; the repository includes an offline replay example)
 - **Public YouTube demo:** [MANUAL USER TASK — add public <=3 minute YouTube URL before Devpost submission]
 
 ## Problem
@@ -86,11 +87,11 @@ FAIL or INCONCLUSIVE. Performance varies with service conditions.
 ## Setup and testing
 
 InferDoc is a Python SDK/CLI test build, not a hosted graphical application.
-Use Python 3.11. After PyPI publication, install with
-`python3.11 -m pip install inferdoc`; until then, clone the repository and use
-`python3.11 -m pip install -e .`. Run the no-credit replay with
-`python3.11 examples/05_replay_verification.py` or notebook 04. It checks
-sanitized measured evidence, artifact integrity, and deterministic verification.
+Use Python 3.11 and install the published package with
+`python3.11 -m pip install inferdoc`. Clone the public repository to run the
+no-credit replay with `python3.11 examples/05_replay_verification.py` or
+notebook 04. It checks sanitized measured evidence, artifact integrity, and
+deterministic verification.
 Run offline tests with `INFERDOC_RUN_LIVE_TESTS=0 python3.11 -m pytest -q`.
 For live checks, install pytest with `python3.11 -m pip install pytest`, set
 your own `NEBIUS_API_KEY`, set
