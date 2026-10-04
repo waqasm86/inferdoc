@@ -23,11 +23,16 @@ against backend capabilities and a comparable benchmark.
 
 ## Install
 
-```bash
-python3.11 -m pip install -e .
+For the public 0.1.0 release, after PyPI publication:
 
-# After the first PyPI release:
-# python3.11 -m pip install inferdoc
+```bash
+python3.11 -m pip install inferdoc
+```
+
+Until publication, install from this repository. For development:
+
+```bash
+python3.11 -m pip install -e ".[dev]"
 ```
 
 Set `NEBIUS_API_KEY` for live calls. The default endpoint is
@@ -102,6 +107,34 @@ Factory credits. `ArtifactStore` records canonical SHA-256 hashes for saved
 evidence, diagnosis, experiment, and verification JSON in each run's
 `manifest.json`; `verify_manifest` detects missing or changed files. The
 example is one captured outcome, not a performance guarantee.
+
+## Judge testing instructions
+
+Quick test without Nebius credits, using the public package after publication:
+
+```bash
+python3.11 -m pip install inferdoc
+git clone https://github.com/waqasm86/inferdoc.git
+cd inferdoc
+python3.11 examples/05_replay_verification.py
+```
+
+Before PyPI publication, clone the repository first and run
+`python3.11 -m pip install -e .` inside it. The replay checks sanitized measured
+evidence, artifact-manifest integrity, and deterministic verification.
+
+For an optional live Token Factory check, set your own key in your shell and
+explicitly enable live tests:
+
+```bash
+python3.11 -m pip install pytest
+export NEBIUS_API_KEY=... # replace the placeholder in your own shell
+export INFERDOC_RUN_LIVE_TESTS=1
+python3.11 -m pytest -q tests/integration/test_live_smoke.py -s
+python3.11 -m pytest -q tests/integration/test_live_closed_loop.py -s
+```
+
+Live tests spend Nebius Token Factory credits. The offline replay does not.
 
 ## Jupyter notebooks
 

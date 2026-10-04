@@ -4,9 +4,9 @@
 - **Track:** Best Apps and Agents
 - **Tagline:** Evidence-driven LLM inference doctor for Nebius Token Factory.
 - **GitHub:** https://github.com/waqasm86/inferdoc
-- **PyPI:** [add URL after release]
-- **Working demo/test build:** [add public URL if available]
-- **Public YouTube demo:** [add URL after upload]
+- **PyPI:** [pending verified publication of `inferdoc==0.1.0`]
+- **Working demo/test build:** https://github.com/waqasm86/inferdoc (Python SDK/CLI and offline replay; add the GitHub Release URL after release)
+- **Public YouTube demo:** [MANUAL USER TASK — add public <=3 minute YouTube URL before Devpost submission]
 
 ## Problem
 
@@ -85,13 +85,20 @@ FAIL or INCONCLUSIVE. Performance varies with service conditions.
 
 ## Setup and testing
 
-Use Python 3.11. Install with `python3.11 -m pip install -e .`. Set
-`NEBIUS_API_KEY` for explicitly invoked live calls. Run the no-credit replay
-with `python3.11 examples/05_replay_verification.py` or notebook 04. Run
-offline tests with `INFERDOC_RUN_LIVE_TESTS=0 python3.11 -m pytest -q`.
-To opt in to the short live regression, set `INFERDOC_RUN_LIVE_TESTS=1` and
-run `python3.11 -m pytest -q tests/integration/test_live_closed_loop.py`;
-this spends Nebius credits. Notebook 03 is the flagship end-to-end walkthrough.
+InferDoc is a Python SDK/CLI test build, not a hosted graphical application.
+Use Python 3.11. After PyPI publication, install with
+`python3.11 -m pip install inferdoc`; until then, clone the repository and use
+`python3.11 -m pip install -e .`. Run the no-credit replay with
+`python3.11 examples/05_replay_verification.py` or notebook 04. It checks
+sanitized measured evidence, artifact integrity, and deterministic verification.
+Run offline tests with `INFERDOC_RUN_LIVE_TESTS=0 python3.11 -m pytest -q`.
+For live checks, install pytest with `python3.11 -m pip install pytest`, set
+your own `NEBIUS_API_KEY`, set
+`INFERDOC_RUN_LIVE_TESTS=1`, then run
+`python3.11 -m pytest -q tests/integration/test_live_smoke.py -s` and
+`python3.11 -m pytest -q tests/integration/test_live_closed_loop.py -s`.
+Live tests spend Nebius Token Factory credits. Notebook 03 is the flagship
+end-to-end walkthrough.
 
 ## Nebius and NVIDIA feedback
 
@@ -104,7 +111,6 @@ implementation details.
 
 ## Significant update statement
 
-[Before submission, confirm whether this is a significant update of any
-previously submitted project. If yes, describe the new evidence correctness,
-closed-loop CLI, artifact manifests, opt-in regression, and notebook work.
-Do not claim prior submission history without checking it.]
+InferDoc was created as a standalone project during the Nebius x NVIDIA Global
+AI Hackathon submission period. It does not depend on my earlier kaggle-vllm or
+kaggle-vllm-nebius projects.
